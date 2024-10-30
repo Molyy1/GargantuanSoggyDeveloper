@@ -1,0 +1,138 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Music Search and Download</title>
+  <style>
+    body {
+      font-family: Arial, sans-serif;
+      background: linear-gradient(135deg, #ff8a00, #da1b60);
+      display: flex;
+      justify-content: center;
+      align-items: center;
+      height: 100vh;
+      color: #fff;
+      margin: 0;
+    }
+
+    .container {
+      background-color: rgba(0, 0, 0, 0.7);
+      padding: 2rem;
+      border-radius: 12px;
+      text-align: center;
+      width: 400px;
+      box-shadow: 0 4px 10px rgba(0, 0, 0, 0.3);
+    }
+
+    h1 {
+      margin-bottom: 20px;
+      font-size: 2rem;
+      color: #ff8a00;
+    }
+
+    input[type="text"] {
+      width: 80%;
+      padding: 10px;
+      border: none;
+      border-radius: 8px;
+      margin-bottom: 20px;
+      font-size: 1rem;
+    }
+
+    button {
+      padding: 10px 20px;
+      border: none;
+      border-radius: 8px;
+      background-color: #ff8a00;
+      color: #fff;
+      font-size: 1rem;
+      cursor: pointer;
+      transition: background-color 0.3s ease;
+    }
+
+    button:hover {
+      background-color: #da1b60;
+    }
+
+    .result {
+      margin-top: 20px;
+      display: none;
+    }
+
+    .result h3 {
+      font-size: 1.5rem;
+    }
+
+    .result audio {
+      width: 100%;
+      margin-top: 10px;
+    }
+
+    .result a {
+      color: #ff8a00;
+      text-decoration: none;
+      font-weight: bold;
+      margin-top: 10px;
+      display: block;
+    }
+
+    .loading {
+      margin-top: 20px;
+      display: none;
+      font-size: 1.2rem;
+    }
+  </style>
+</head>
+<body>
+  <div class="container">
+    <h1>Music Search 🎧</h1>
+    <input type="text" id="query" placeholder="Enter song or artist name">
+    <button onclick="searchMusic()">Search</button>
+
+    <div class="loading" id="loading">Searching... 🎶</div>
+    <div class="result" id="result"></div>
+  </div>
+
+  <script>
+    async function searchMusic() {
+      const query = document.getElementById("query").value;
+      const resultDiv = document.getElementById("result");
+      const loadingDiv = document.getElementById("loading");
+
+      if (!query) {
+        alert("Please enter a song title or artist name.");
+        return;
+      }
+
+      resultDiv.style.display = "none";
+      loadingDiv.style.display = "block";
+
+      try {
+        const response = await fetch(`/sing?query=${encodeURIComponent(query)}`);
+        const data = await response.json();
+
+        if (response.ok) {
+          resultDiv.innerHTML = `
+            <h3>${data.title}</h3>
+            <audio controls>
+              <source src="${data.listenPath}" type="audio/mpeg">
+              Your browser does not support the audio element.
+            </audio>
+            <a href="${data.downloadPath}" download>⬇️ Download Music</a>
+          `;
+          resultDiv.style.display = "block";
+        } else {
+          resultDiv.innerHTML = "No music found.";
+          resultDiv.style.display = "block";
+        }
+      } catch (error) {
+        resultDiv.innerHTML = "An error occurred. Please try again.";
+        resultDiv.style.display = "block";
+      } finally {
+        loadingDiv.style.display = "none";
+      }
+    }
+  </script>
+</body>
+</html>
